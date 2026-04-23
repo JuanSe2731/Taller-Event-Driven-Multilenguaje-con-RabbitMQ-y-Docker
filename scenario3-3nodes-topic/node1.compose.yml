@@ -1,0 +1,29 @@
+services:
+  producer-alpha:
+    build: ../producers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+    command: ["python", "producer_alpha.py"]
+
+  consumer-logger:
+    build: ../consumers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+      QUEUE: q.logger
+    command: ["node", "consumer_logger.js"]
+
+  consumer-audit:
+    build: ../consumers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+      QUEUE: q.audit
+    command: ["node", "consumer_audit.js"]

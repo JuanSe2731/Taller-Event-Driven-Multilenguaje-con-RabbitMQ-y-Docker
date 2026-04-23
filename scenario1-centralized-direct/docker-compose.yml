@@ -1,0 +1,107 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-s1
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  producer-alpha:
+    build: ../producers
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE: events.direct
+      EXCHANGE_TYPE: direct
+    command: ["python", "producer_alpha.py"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  producer-beta:
+    build: ../producers
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE: events.direct
+      EXCHANGE_TYPE: direct
+    command: ["python", "producer_beta.py"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  producer-gamma:
+    build: ../producers
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE: events.direct
+      EXCHANGE_TYPE: direct
+    command: ["python", "producer_gamma.py"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  producer-delta-cpp:
+    build: ../cpp
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE: events.direct
+      EXCHANGE_TYPE: direct
+    command: ["./build/producer_delta"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  consumer-logger:
+    build: ../consumers
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE: events.direct
+      EXCHANGE_TYPE: direct
+      QUEUE: q.logger
+    command: ["node", "consumer_logger.js"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  consumer-audit:
+    build: ../consumers
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE: events.direct
+      EXCHANGE_TYPE: direct
+      QUEUE: q.audit
+    command: ["node", "consumer_audit.js"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  consumer-metrics:
+    build: ../consumers
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE: events.direct
+      EXCHANGE_TYPE: direct
+      QUEUE: q.metrics
+    command: ["node", "consumer_metrics.js"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  consumer-delta-cpp:
+    build: ../cpp
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE: events.direct
+      EXCHANGE_TYPE: direct
+      QUEUE: q.delta
+    command: ["./build/consumer_delta"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

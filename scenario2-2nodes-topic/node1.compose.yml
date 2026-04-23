@@ -1,0 +1,76 @@
+services:
+  producer-alpha:
+    build: ../producers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+    command: ["python", "producer_alpha.py"]
+
+  producer-beta:
+    build: ../producers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+    command: ["python", "producer_beta.py"]
+
+  producer-gamma:
+    build: ../producers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+    command: ["python", "producer_gamma.py"]
+
+  producer-delta-cpp:
+    build: ../cpp
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+    command: ["./build/producer_delta"]
+
+  consumer-logger:
+    build: ../consumers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+      QUEUE: q.logger
+    command: ["node", "consumer_logger.js"]
+
+  consumer-audit:
+    build: ../consumers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+      QUEUE: q.audit
+    command: ["node", "consumer_audit.js"]
+
+  consumer-metrics:
+    build: ../consumers
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+      QUEUE: q.metrics
+    command: ["node", "consumer_metrics.js"]
+
+  consumer-delta-cpp:
+    build: ../cpp
+    environment:
+      RABBITMQ_HOST: 10.6.101.162
+      RABBITMQ_PORT: "5672"
+      EXCHANGE: events.topic
+      EXCHANGE_TYPE: topic
+      QUEUE: q.delta
+    command: ["./build/consumer_delta"]
